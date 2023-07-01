@@ -1,0 +1,215 @@
+CREATE DATABASE RAILWAY;
+USE RAILWAY;
+
+CREATE TABLE TRAIN
+( 
+  TRAIN_ID INT NOT NULL PRIMARY KEY,
+  TRAIN_NUM VARCHAR(50),
+  TRAIN_NAME VARCHAR(50),
+  TRAIN_TYPE VARCHAR(50)
+);
+
+CREATE TABLE TRACKS
+(
+  TRACK_NO INT NOT NULL PRIMARY KEY, 
+  LENGTH VARCHAR(50)
+);
+
+CREATE TABLE STATION
+(
+  STATION_ID INT NOT NULL PRIMARY KEY,
+  STATION_NAME VARCHAR(50),
+  PLACE VARCHAR(50), 
+  TRACK_NO INT,
+  FOREIGN KEY (TRACK_NO) REFERENCES TRACKS(TRACK_NO) ON DELETE CASCADE
+);
+
+CREATE TABLE SCHEDULES
+(
+  SCHEDULES_ID INT NOT NULL,
+  SOURCE VARCHAR(50),
+  DESTINATION VARCHAR(50),
+  START_TIME VARCHAR(50),
+  END_TIME VARCHAR(50),
+  TRAIN_ID INT NOT NULL,
+  TRAIN_NUM VARCHAR(50),
+  ROUTE_NO INT NOT NULL,
+  PRIMARY KEY (SCHEDULES_ID, TRAIN_ID, ROUTE_NO),
+  FOREIGN KEY (TRAIN_ID) REFERENCES TRAIN(TRAIN_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE ROUTE
+(
+  ROUTE_NO INT NOT NULL, 
+  TOTAL_STOPS INT, 
+  SCHEDULE_ID INT NOT NULL,
+  TRAIN_ID INT NOT NULL,
+  PRIMARY KEY (ROUTE_NO, SCHEDULE_ID, TRAIN_ID),
+  FOREIGN KEY (SCHEDULE_ID) REFERENCES SCHEDULES(SCHEDULES_ID) ON DELETE CASCADE,
+  FOREIGN KEY (TRAIN_ID) REFERENCES TRAIN(TRAIN_ID) ON DELETE CASCADE  
+);
+
+CREATE TABLE CONSISTS_OF
+(
+  ROUTE_NO INT NOT NULL,
+  TRAIN_ID INT NOT NULL, 
+  SCHEDULE_ID INT NOT NULL,
+  STATION_ID INT NOT NULL,
+  STOP_NO INT,
+  ARRIVAL_TIME VARCHAR(50),
+  DEPARTURE_TIME VARCHAR(50),
+  PRIMARY KEY (ROUTE_NO, TRAIN_ID, SCHEDULE_ID, STATION_ID),
+  FOREIGN KEY (ROUTE_NO, SCHEDULE_ID, TRAIN_ID) REFERENCES ROUTE(ROUTE_NO, SCHEDULE_ID, TRAIN_ID) ON DELETE CASCADE,
+  FOREIGN KEY (TRAIN_ID) REFERENCES TRAIN(TRAIN_ID) ON DELETE CASCADE,
+  FOREIGN KEY (STATION_ID) REFERENCES STATION(STATION_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE TICKET
+(
+  TICKET_NO INT NOT NULL PRIMARY KEY,
+  FARE VARCHAR(50),
+  SOURCE VARCHAR(50),
+  DATE VARCHAR(50),
+  TIME VARCHAR(10),
+  DESTINATION VARCHAR(50),
+  DISTANCE VARCHAR(50),
+  SEAT_NO VARCHAR(50),
+  PNR VARCHAR(50)
+);
+
+
+CREATE TABLE PASSENGERS
+( 
+  P_ID INT NOT NULL PRIMARY KEY, 
+  P_NAME VARCHAR(50),
+  AGE INT,
+  GENDER VARCHAR(50),
+  COACH INT,
+  COACH_TYPE VARCHAR(50),
+  SEAT_NO VARCHAR(50), 
+  TRAIN_ID INT,
+  TICKET_NO INT,
+  FOREIGN KEY (TRAIN_ID) REFERENCES TRAIN(TRAIN_ID) ON DELETE CASCADE,
+  FOREIGN KEY (TICKET_NO) REFERENCES TICKET(TICKET_NO) ON DELETE CASCADE
+);
+
+CREATE TABLE MOVES_ON
+(
+  TRAIN_ID INT NOT NULL,
+  TRACK_NO INT NOT NULL,
+  PRIMARY KEY (TRAIN_ID, TRACK_NO),
+  FOREIGN KEY (TRAIN_ID) REFERENCES TRAIN(TRAIN_ID) ON DELETE CASCADE,
+  FOREIGN KEY (TRACK_NO) REFERENCES TRACKS(TRACK_NO) ON DELETE CASCADE
+);
+
+INSERT INTO TRAIN (TRAIN_ID,TRAIN_NUM, TRAIN_NAME, TRAIN_TYPE)
+VALUES (1,'12951/12952', 'Rajdhani EXpress', 'Superfast, air_conditioner'),
+       (2, '12013/12014', 'Shatabdi Express', 'Superfast, air_conditioner'),
+       (3, '12261/12262', 'Duronto Expresss', 'air_conditioner, non stop'),
+       (4, '12049/12050', 'Gatimaan Express', 'SEMI-high, air_conditioner'),
+       (5, '22119/22120', 'Tejas Express', 'High-Speed, air_conditioner'),
+       (6, '12571/12572', 'Hamsafar Express', 'High-Speed, fully air_conditioner'),
+       (7, '12055/12056', 'Jan Shatabdi Express', 'Superfast, air_conditioner'),
+       (8, '12907/12908', 'Sampark Kranti', 'Superfast'),
+       (9, '12023/12204', 'Garib Rath Express', 'Superfast, air_conditioner'),
+       (10,'22417/22418', 'Mahamana Express', 'Premium air_conditioner*-');
+
+
+INSERT INTO TRACKS (TRACK_NO, LENGTH)
+VALUES (12, '100 km'),
+       (20, '560 km'),
+       (10, '160 km'),
+       (34, '1200 km'),
+       (53, '791 km'),
+       (61, '911 km'),
+       (73, '500 km'),
+       (36, '750 km'),
+       (67, '250 km'),
+       (90, '300 km');
+       
+INSERT INTO STATION (STATION_ID, STATION_NAME, PLACE, TRACK_NO)
+VALUES (1, 'Chhatrapati Shivaji Terminal', 'Mumbai, Maharashtra', 12),
+       (2, 'Howrah Junction', 'Kolkata, West Bengal', 20),
+       (3, 'New Delhi Railway Station', 'New Delhi', 10),
+       (4, 'Chennai Central', 'Chennai, TamilNadu', 34),
+       (5, 'Bangalore City Junction', 'Bangalore, Karnataka', 53),
+       (6, 'Patna Junction', 'Patna, Bihar', 61),
+       (7, 'Ahmedaba Junction', 'Ahmedabad, Gujarat', 73),
+       (8, 'Secunderabad Junction', 'Hyderabad, Telangana', 36),
+       (9, 'Kolkata Station', 'Kolkata, West Bengal', 67),
+       (10, 'Lucknow Junction', 'Lucknow, Uttar Pradesh', 90);
+       
+INSERT INTO SCHEDULES (SCHEDULES_ID, SOURCE, DESTINATION, START_TIME, END_TIME,TRAIN_NUM, TRAIN_ID, ROUTE_NO)
+VALUES (1, 'New Delhi', 'Mumbai', '08:00', '19:00', '12951/12952',1, 1),
+       (2, 'New Delhi', 'Jaipur', '09:00', '17:00', '12013/12014',2, 2),
+       (3, 'Mumbai',    'Kolkata','10:00', '23:00','12261/12262',3, 3),
+       (4, 'New Delhi', 'Jhansi', '11:00', '13:00', '12049/12050',4, 4),
+       (5, 'Lucknow',  'New Delhi','12:00', '22:00','22119/22122',5, 5),
+       (6, 'Patna',    'Ahmedabad','9:00', '15:00','12971/12572',6, 6),
+       (7, 'Lucknow',  'Varansi', '14:00', '16:00',  '12055/12056',7, 7),
+       (8, 'Patna',    'Delhi', '15:00', '17:00',   '12907/12908', 8, 8),
+       (9, 'Mumbai',   'Kolkata', '16:00', '18:00',  '12203/12204',9, 9),
+       (10,'Varansi', 'New Delhi', '17:00', '19:0' ,'22417/22418',10, 10);
+
+INSERT INTO ROUTE (ROUTE_NO, TOTAL_STOPS, SCHEDULE_ID, TRAIN_ID)
+VALUES (1, 5, 1, 1),
+       (2, 5, 2, 2),
+       (3, 5, 3, 3),
+       (4, 5, 4, 4),
+       (5, 5, 5, 5),
+       (6, 5, 6, 6),
+       (7, 5, 7, 7),
+       (8, 5, 8, 8),
+       (9, 5, 9, 9),
+       (10, 5, 10, 10);
+
+INSERT INTO CONSISTS_OF (ROUTE_NO, TRAIN_ID, SCHEDULE_ID, STATION_ID, STOP_NO, ARRIVAL_TIME, DEPARTURE_TIME)
+VALUES (1, 1, 1, 1, 1, '08:00', '08:15'),
+       (2, 2, 2, 2, 2, '09:30', '09:35'),
+       (3, 3, 3, 4, 4, '11:30', '11:35'),
+       (3, 3, 3, 5, 5, '12:00', '12:15'),
+       (4, 4, 4, 5, 5, '13:00', '13:15'),
+       (5, 5, 5, 1, 1, '12:00', '12:15'),
+       (6, 6, 6, 4, 4, '14:30', '14:35'),
+       (6, 6, 6, 5, 5, '15:00', '15:15'),
+       (7, 7, 7, 1, 1, '14:00', '14:15'),
+       (9, 9, 9, 1, 1, '16:00', '16:15'),
+       (9, 9, 9, 2, 2, '16:30', '16:35'),
+       (10, 10, 10, 5, 5, '19:00', '19:15');
+
+INSERT INTO TICKET (TICKET_NO, FARE, SOURCE, DATE,TIME,DESTINATION, DISTANCE, SEAT_NO, PNR)
+VALUES (1, '50', 'New Delhi', '12-DEC-2023','12:00','Mumbai', '100 km', 'A1', 'PNR1'),
+       (2, '60', 'New Delhi','12-AUG-2023' ,'10:00','Jaipur', '120 km', 'B1', 'PNR2'),
+       (3, '55', 'Mumbai',   '11-DEC-2023' ,'12:00','Kolkata', '110 km', 'C1', 'PNR3'),
+       (4, '65', 'New Delhi','12-JULY-2023' ,'12:00','Jhansi', '130 km', 'D1', 'PNR4'),
+       (5, '70', 'Lucknow', '12-JUNE-2023','14:00' ,'New Delhi', '140 km', 'E1', 'PNR5'),
+       (6, '75', 'Patna',   '2-DEC-2023' ,'15:00','Ahmedabad', '150 km', 'F1', 'PNR6'),
+       (7, '80', 'Lucknow', '12-APRIL-2023' ,'12:00','Varansi', '160 km', 'G1', 'PNR7'),
+       (8, '85', 'Patna',  '12-DEC-2023' ,'19:00' ,'Delhi', '170 km', 'H1', 'PNR8'),
+       (9, '90', 'Mumbai',  '12-DEC-2023' ,'22:00','Kolkata', '180 km', 'I1', 'PNR9'),
+       (10, '95', 'Varansi','12-DEC-2023','12:00' ,'New Delhi', '190 km', 'J1', 'PNR10');
+
+INSERT INTO PASSENGERS (P_ID, P_NAME, AGE, GENDER, COACH, COACH_TYPE, SEAT_NO, TRAIN_ID, TICKET_NO)
+VALUES (1, 'AMITABH', 25, 'Male', 1, 'AC', 'A1', 1, 1),
+       (2, 'RASHMI', 30, 'Female', 2, 'NON_AC', 'B1', 2, 2),
+       (3, 'DINESH', 35, 'Male', 3, 'AC', 'C1', 3, 3),
+       (4, 'RITA', 40, 'Female', 4, 'NON_AC', 'D1', 4, 4),
+       (5, 'MAHENDRA', 45, 'Male', 5, 'AC', 'E1', 5, 5),
+       (6, 'ANITA', 50, 'Female', 6, 'AC', 'F1', 6, 6),
+       (7, 'DHARMENDRA', 55, 'Male', 7, 'NON_AC', 'G1', 7, 7),
+       (8, 'ISHITA', 60, 'Female', 8, 'AC', 'H1', 8, 8),
+       (9, 'RAVINDRA', 65, 'Male', 9, 'NON_AC', 'I1', 9, 9),
+       (10,'ALIYA', 70, 'Female', 10, 'AC', 'J1', 10, 10);
+
+INSERT INTO MOVES_ON (TRAIN_ID, TRACK_NO)
+VALUES (1, 12),
+       (2, 10),
+       (3, 34),
+       (4, 20),
+       (5, 61),
+       (6, 53),
+       (7, 36),
+       (8, 73),
+       (9, 90),
+       (10, 67);
+
